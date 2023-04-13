@@ -5,6 +5,8 @@ import './Weather.css';
 const Weather = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [temperatureUnit, setTemperatureUnit] = useState('metric');
+  const [city, setCity] = useState('');
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const getWeatherData = async () => {
@@ -31,6 +33,23 @@ const Weather = () => {
     setTemperatureUnit(newUnit);
   };
 
+  const searchCity = async (e) => {
+    e.preventDefault();
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=a391e33ab6494e0851324aca91e03228&units=${temperatureUnit}`;
+    try {
+      const response = await axios.get(url);
+      setWeatherData(response.data);
+      setError(false);
+    } catch (error) {
+      if (error.response.status === 404) {
+        setError(true);
+      } else {
+        console.log(error);
+      }
+    }
+    setCity('');
+  };
+
   if (!weatherData) {
     return <div>Loading...</div>;
   }
@@ -49,31 +68,41 @@ const Weather = () => {
           {temperatureUnit === 'metric' ? '°C' : '°F'}
         </button>
       </div>
+      <form onSubmit={searchCity}>
+        <input
+          type="text"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Enter city name"
+        />
+        <button type="submit">Search</button>
+      </form>
+      {error && <div className="alert">No se pudo encontrar la localidad</div>}
       <div className="weather-info">
         <div className="weather-icon">
           <img src={`http://openweathermap.org/img/w/${icon}.png`} alt={description} />
-        </div>
-        <div className="weather-temp">
-          Temperature: {temp.toFixed(1)} {temperatureUnit === 'metric' ? '°C' : '°F'}
-        </div>
-        <div className="weather-desc">
-          Description: {description}
-        </div>
-        <div className="weather-humidity">
-          Humidity: {humidity}%
-        </div>
-        <div className="weather-wind">
-          Wind: {speed} m/s, {deg}°
-        </div>
-        <div className="weather-pressure">
-          Pressure: {main.pressure} hPa
-        </div>
-        <div className="weather-feels-like">
-          Feels like: {main.feels_like.toFixed(1)} {temperatureUnit === 'metric' ? '°C' : '°F'}
-        </div>
-      </div>
-    </div>
-  );
+</div>
+<div className="weather-temp">
+Temperature: {temp.toFixed(1)} {temperatureUnit === 'metric' ? '°C' : '°F'}
+</div>
+<div className="weather-desc">
+Description: {description}
+</div>
+<div className="weather-humidity">
+Humidity: {humidity}%
+</div>
+<div className="weather-wind">
+Wind: {speed} m/s, {deg}°
+</div>
+<div className="weather-pressure">
+Pressure: {main.pressure} hPa
+</div>
+<div className="weather-feels-like">
+Feels like: {main.feels_like.toFixed(1)} {temperatureUnit === 'metric' ? '°C' : '°F'}
+</div>
+</div>
+</div>
+);
 };
 
 export default Weather;
