@@ -10,7 +10,7 @@ import snow from './components/images/snow.jpg';
 import thunderstorm from './components/images/thunderstorm.jpg';
 
 function App() {
-  const [backgroundImage, setBackgroundImage] = useState('');
+  const [backgroundImage, setBackgroundImage] = useState('url()');
 
   const getBackgroundImage = (icon) => {
     const weatherType = icon.slice(0, 2);
@@ -38,7 +38,7 @@ function App() {
   };
 
   return (
-    <div className="App" style={{ backgroundImage }}>
+<div className="App" style={{ backgroundImage: backgroundImage }}>
       <Weather setBackgroundImage={handleSetBackgroundImage} />
     </div>
   );
