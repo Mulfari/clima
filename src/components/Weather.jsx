@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Weather.css';
+import clear from './images/clear.jpg';
+import clouds from './images/clouds.jpg';
+import rain from './images/rain.jpg';
+import snow from './images/snow.jpg';
+import thunderstorm from './images/thunderstorm.jpg';
 
 const Weather = () => {
   const [weatherData, setWeatherData] = useState(null);
@@ -60,8 +65,32 @@ const Weather = () => {
   const { temp, humidity } = main;
   const { speed, deg } = wind;
 
+  const getBackgroundImage = (icon) => {
+    const weatherType = icon.slice(0, 2);
+    switch (weatherType) {
+      case '01':
+      case '02':
+        return `url(${clear})`;
+      case '03':
+      case '04':
+        return `url(${clouds})`;
+      case '09':
+      case '10':
+        return `url(${rain})`;
+      case '11':
+        return `url(${thunderstorm})`;
+      case '13':
+        return `url(${snow})`;
+      default:
+        return `url(${clear})`;
+    }
+  };
+
+  
+  const backgroundImage = getBackgroundImage(icon);
+
   return (
-    <div className="weather">
+    <div className="weather" style={{ backgroundImage }}>
       <div className="weather-header">
         <h2 className="weather-title">{name}, {country}</h2>
         <button className="weather-unit-button" onClick={handleClick}>
