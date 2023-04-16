@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Weather from './components/Weather';
 import clear from './components/images/clear.jpg';
@@ -7,14 +7,8 @@ import rain from './components/images/rain.jpg';
 import snow from './components/images/snow.jpg';
 import thunderstorm from './components/images/thunderstorm.jpg';
 
-
 const App = () => {
-  const [weatherData, setWeatherData] = useState({
-    cityName: '',
-    temperature: '',
-    description: '',
-    weatherId: '',
-  });
+  const [backgroundImage, setBackgroundImage] = useState(clear);
 
   const getBackgroundImage = (weatherId) => {
     if (weatherId >= 200 && weatherId <= 232) {
@@ -33,43 +27,21 @@ const App = () => {
       return clear;
     }
   };
-  
 
-  const fetchWeather = async () => {
-    try {
-      const response = await fetch(
-        'https://api.openweathermap.org/data/2.5/weather?q=Bogota&appid=a391e33ab6494e0851324aca91e03228&units=metric'
-      );
-      const data = await response.json();
-      setWeatherData({
-        cityName: data.name,
-        temperature: data.main.temp.toFixed(1),
-        description: data.weather[0].description,
-        weatherId: data.weather[0].id,
-      });
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
-    }
+  const handleWeatherData = (weatherData) => {
+    setBackgroundImage(getBackgroundImage(weatherData.weather[0].id));
   };
-
-  useEffect(() => {
-    fetchWeather();
-  }, []);
 
   return (
     <div
       className="App"
       style={{
-        backgroundImage: `url(${getBackgroundImage(weatherData.weatherId)})`,
+        backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
-      <Weather
-        cityName={weatherData.cityName}
-        temperature={weatherData.temperature}
-        description={weatherData.description}
-      />
+      <Weather onWeatherData={handleWeatherData} />
     </div>
   );
 };
