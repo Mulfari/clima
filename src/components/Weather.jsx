@@ -21,7 +21,7 @@ const Weather = ({ onWeatherData }) => {
           const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=a391e33ab6494e0851324aca91e03228&units=${temperatureUnit}`;
           const response = await axios.get(url);
           setWeatherData(response.data);
-          onWeatherData(response.data);
+          onWeatherData && onWeatherData(response.data);
         },
         () => {
           console.log("Error getting position");
@@ -33,7 +33,7 @@ const Weather = ({ onWeatherData }) => {
     if (!city) {
       getWeatherData();
     }
-  }, []); // Eliminar dependencias
+  }, []);
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ const Weather = ({ onWeatherData }) => {
       const response = await axios.get(url);
       setWeatherData(response.data);
       setError(false);
-      onWeatherData(response.data);
+      onWeatherData && onWeatherData(response.data);
     } catch (error) {
       if (error.response.status === 404) {
         setError(true);
@@ -67,15 +67,18 @@ const Weather = ({ onWeatherData }) => {
   const { country } = sys;
   const { icon, description } = weather[0];
   const { temp, humidity } = main;
-  const { speed, deg } = wind;
-  const tempUnit = temperatureUnit === 'metric' ? '°C' : '°F';
+  let tempInCelsius = temp;
+  if (temperatureUnit !== 'metric') {
+    tempInCelsius = (temp - 32) * 5 / 9;
+  }
+  const temperatureUnitSymbol = temperatureUnit === 'metric' ? '°C' : '°F';
 
   return (
     <div className="weather">
       <div className="weather-header">
         <h2 className="weather-title">{name}, {country}</h2>
         <button className="weather-unit-button" onClick={handleClick}>
-          {tempUnit}
+          {temperatureUnitSymbol}
         </button>
       </div>
       <form onSubmit={searchCity}>
@@ -88,21 +91,21 @@ const Weather = ({ onWeatherData }) => {
         <button type="submit">Search</button>
       </form>
       {error && <div className="alert">No se pudo encontrar la localidad</div>}
-<div className="weather-info">
-  <div className="weather-icon">
-    <img src={`http://openweathermap.org/img/w/${icon}.png`} alt={description} />
-  </div>
-  <div className="weather-temp">
-    Temperature: {temp.toFixed(1)} {tempUnit}
-  </div>
-</div>
-<div className="weather-desc">Description: {description}</div>
-<div className="weather-humidity">Humidity: {humidity}%</div>
-<div className="weather-wind">
-Wind: {speed.toFixed(1)} {temperatureUnit === 'metric' ? 'm/s' : 'mph'}, {deg}°
-</div>
-</div>
-);
+      <div className="weather-info">
+        <div className="weather-icon">
+          <img src={`http://openweathermap.org/img/w/${icon}.png`} alt={description} />
+        </div>
+        <div className="weather-temp">
+          Temperature: {tempInCelsius.toFixed(1)} {temperatureUnitSymbol}
+        </div>
+      </div>
+      <div className="weather-desc">Description: {description}</div>
+      <div className="weather-humidity">Humidity: {humidity}%</div>
+      <div className="weather-wind">
+        Wind: {wind.speed.toFixed(1)} {temperatureUnit === 'metric' ? 'm/s' : 'mph'}, {wind.deg}°
+      </div>
+    </div>
+  );
 };
 
 export default Weather;
